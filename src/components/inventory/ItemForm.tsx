@@ -14,7 +14,7 @@ import {
 } from '@mantine/core';
 import {useForm} from '@mantine/form';
 import type {InventoryItem, ItemCategory, ItemStatus, LabType} from "../../types/inventory.ts";
-import {DatePicker} from "@mantine/dates";
+import {DatePickerInput} from "@mantine/dates";
 import {
     IconDeviceDesktop,
     IconMapPin,
@@ -235,30 +235,34 @@ export function ItemForm(
                     </Text>
                     <Grid>
                         <Grid.Col span={{base: 12, sm: 6}}>
-                            <DatePicker
-                                // label="Fecha de Adquisición"
-                                // placeholder="Selecciona una fecha"
-                                // leftSection={<IconCalendar size={16}/>}
+                            <DatePickerInput
+                                label="Fecha de Adquisición"
+                                placeholder="Selecciona una fecha"
+                                leftSection={<IconCalendar size={16}/>}
                                 value={form.values.fechaAdquisicion ? new Date(form.values.fechaAdquisicion) : null}
                                 onChange={(date) => {
                                     if (date === null) form.setFieldValue('fechaAdquisicion', undefined);
                                     else form.setFieldValue('fechaAdquisicion', date as Date);
                                 }}
-                                // clearable
+                                clearable
+                                maxDate={new Date()}
+                                firstDayOfWeek={0}
                             />
                         </Grid.Col>
 
                         <Grid.Col span={{base: 12, sm: 6}}>
-                            <DatePicker
-                                // label="Último Mantenimiento"
-                                // placeholder="Selecciona una fecha"
-                                // leftSection={<IconCalendar size={16}/>}
+                            <DatePickerInput
+                                label="Último Mantenimiento"
+                                placeholder="Selecciona una fecha"
+                                leftSection={<IconCalendar size={16}/>}
                                 value={form.values.ultimoMantenimiento ? new Date(form.values.ultimoMantenimiento) : null}
                                 onChange={(date) => {
                                     if (date === null) form.setFieldValue('ultimoMantenimiento', undefined);
                                     else form.setFieldValue('ultimoMantenimiento', date as Date);
                                 }}
-                                // clearable
+                                clearable
+                                maxDate={new Date()}
+                                firstDayOfWeek={0}
                             />
                         </Grid.Col>
 

@@ -9,7 +9,6 @@ import {
     Modal,
     Group,
     Button,
-    Badge,
     Text
 } from '@mantine/core';
 import {useDisclosure} from '@mantine/hooks';
@@ -176,9 +175,6 @@ export function InventoryView() {
             <Group justify="space-between" align="center">
                 <Group align="center">
                     <Title order={2}>Inventario General</Title>
-                    <Badge size="lg" variant="filled" color="blue">
-                        {filteredItems.length} {filteredItems.length === 1 ? 'ítem' : 'ítems'}
-                    </Badge>
                 </Group>
                 <Button
                     leftSection={<IconPlus size={16}/>}
