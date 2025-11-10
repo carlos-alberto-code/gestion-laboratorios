@@ -41,7 +41,7 @@ export function Sidebar() {
     return (
         <AppShell
             header={{height: 60}}
-            navbar={{width: 270, breakpoint: 'sm'}}
+            navbar={{width: 240, breakpoint: 'sm'}}
             padding="md"
         >
             <AppShell.Header p="md">
