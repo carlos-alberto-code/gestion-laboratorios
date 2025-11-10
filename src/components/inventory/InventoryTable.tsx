@@ -1,20 +1,24 @@
-import {Table, Badge, Text} from '@mantine/core';
+import {Table, Badge, Text, ActionIcon, Menu, rem} from '@mantine/core';
+import {IconDots, IconEdit, IconTrash} from '@tabler/icons-react';
 import type {InventoryItem} from "../../types/inventory.ts";
 
 interface InventoryTableProps {
     data: InventoryItem[];
     scrollable?: boolean;
+    onEdit?: (item: InventoryItem) => void;
+    onDelete?: (item: InventoryItem) => void;
 }
 
-export function InventoryTable({data, scrollable = true}: InventoryTableProps) {
+export function InventoryTable({data, scrollable = true, onEdit, onDelete}: InventoryTableProps) {
+
     const getStatusColor = (estado: string) => {
         const colors: Record<string, string> = {
             'Operativo': 'green',
-            'Mantenimiento': 'yellow',
-            'Dañado': 'red',
-            'Retirado': 'gray'
+            'En Mantenimiento': 'yellow',
+            'De Baja': 'red',
+            'En Préstamo': 'blue'
         };
-        return colors[estado] || 'blue';
+        return colors[estado] || 'gray';
     };
 
     const rows = data.map((item) => (
@@ -42,6 +46,34 @@ export function InventoryTable({data, scrollable = true}: InventoryTableProps) {
                     {item.tipoDeLab}
                 </Badge>
             </Table.Td>
+            <Table.Td>
+                <Menu position="bottom-end" withArrow>
+                    <Menu.Target>
+                        <ActionIcon variant="subtle" color="gray">
+                            <IconDots style={{width: rem(16), height: rem(16)}}/>
+                        </ActionIcon>
+                    </Menu.Target>
+
+                    <Menu.Dropdown>
+                        <Menu.Item
+                            leftSection={<IconEdit style={{width: rem(16), height: rem(16)}}/>}
+                            onClick={() => onEdit?.(item)}
+                        >
+                            Editar elemento
+                        </Menu.Item>
+
+                        <Menu.Divider/>
+
+                        <Menu.Item
+                            leftSection={<IconTrash style={{width: rem(16), height: rem(16)}}/>}
+                            color="red"
+                            onClick={() => onDelete?.(item)}
+                        >
+                            Eliminar elemento
+                        </Menu.Item>
+                    </Menu.Dropdown>
+                </Menu>
+            </Table.Td>
         </Table.Tr>
     ));
 
@@ -58,12 +90,13 @@ export function InventoryTable({data, scrollable = true}: InventoryTableProps) {
                     <Table.Th>Estado</Table.Th>
                     <Table.Th>Ubicación</Table.Th>
                     <Table.Th>Tipo Lab</Table.Th>
+                    <Table.Th style={{width: rem(60)}}>Acciones</Table.Th>
                 </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
                 {rows.length > 0 ? rows : (
                     <Table.Tr>
-                        <Table.Td colSpan={5} style={{textAlign: 'center'}}>
+                        <Table.Td colSpan={6} style={{textAlign: 'center'}}>
                             <Text c="dimmed" py="md">No se encontraron resultados</Text>
                         </Table.Td>
                     </Table.Tr>
@@ -74,7 +107,7 @@ export function InventoryTable({data, scrollable = true}: InventoryTableProps) {
 
     if (scrollable) {
         return (
-            <Table.ScrollContainer minWidth={600}>
+            <Table.ScrollContainer minWidth={650} type="native">
                 {tableContent}
             </Table.ScrollContainer>
         );

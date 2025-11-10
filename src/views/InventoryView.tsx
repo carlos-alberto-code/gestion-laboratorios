@@ -1,13 +1,24 @@
 import {useMemo, useState} from "react";
 import mockInventory from "../mocks/inventory.ts";
-import {Title, Stack, Paper, Grid, Select} from '@mantine/core';
-import type {FilterState, InventoryItem, ItemCategory, ItemStatus, LabType} from "../types/inventory.ts";
+import {
+    Title,
+    Stack,
+    Paper,
+    Grid,
+    Select,
+    Modal,
+    Text,
+    Button,
+    Group
+} from '@mantine/core';
+import {useDisclosure} from '@mantine/hooks';
+import {EditModalForm} from "../components/inventory/EditModalForm.tsx";
 import {InventoryTable} from "../components/inventory/InventoryTable.tsx";
+import type {FilterState, InventoryItem, ItemCategory, ItemStatus, LabType} from "../types/inventory.ts";
 
 export function InventoryView() {
 
     const [data, setData] = useState<InventoryItem[]>(mockInventory);
-
     const [filters, setFilters] = useState<FilterState>({
         campus: null,
         edificio: null,
@@ -16,6 +27,16 @@ export function InventoryView() {
         estado: null,
     });
 
+    // Estados para modales
+    const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
+    const [deletingItem, setDeletingItem] = useState<InventoryItem | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Usar useDisclosure para mejor control del modal
+    const [editModalOpened, {open: openEditModal, close: closeEditModal}] = useDisclosure(false);
+    const [deleteModalOpened, {open: openDeleteModal, close: closeDeleteModal}] = useDisclosure(false);
+
+    // Opciones para filtros
     const campusOptions = useMemo(() =>
             Array.from(new Set(data.map(item => item.campus)))
                 .map(campus => ({value: campus, label: campus})),
@@ -40,11 +61,9 @@ export function InventoryView() {
         [data]
     );
 
-    // --- Filtro dependiente: Edificios ---
-    // (Este se recalcula si 'filters.campus' cambia)
     const edificioOptions = useMemo(() => {
         if (!filters.campus) {
-            return []; // No mostrar edificios si no hay campus seleccionado
+            return [];
         }
         const edificiosEnCampus = data
             .filter(item => item.campus === filters.campus)
@@ -54,7 +73,7 @@ export function InventoryView() {
             .map(edificio => ({value: edificio, label: edificio}));
     }, [data, filters.campus]);
 
-
+    // Filtrado de items
     const filteredItems = useMemo(() => {
         let items = data;
 
@@ -77,24 +96,84 @@ export function InventoryView() {
         return items;
     }, [filters, data]);
 
-    // Función genérica para manejar cambios en los Selects ---
     const handleSelectChange = (field: keyof FilterState, value: string | null) => {
         setFilters(currentFilters => ({
             ...currentFilters,
             [field]: value,
-            // Si el campus cambia, resetea el edificio
             ...(field === 'campus' && {edificio: null}),
         }));
+    };
+
+    // Manejo de edición
+    const handleEdit = (item: InventoryItem) => {
+        setEditingItem(item);
+        openEditModal();
+    };
+
+    const handleSaveEdit = async (formData: InventoryItem) => {
+        setIsSubmitting(true);
+        try {
+            // Simular llamada a API
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Actualizar el estado local
+            setData(prev =>
+                prev.map(item =>
+                    item.id === formData.id ? formData : item
+                )
+            );
+
+            // Cerrar modal
+            closeEditModal();
+            setEditingItem(null);
+        } catch (error) {
+            console.error('Error al guardar:', error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    // Manejo de eliminación
+    const handleDelete = (item: InventoryItem) => {
+        setDeletingItem(item);
+        openDeleteModal();
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!deletingItem) return;
+
+        setIsSubmitting(true);
+        try {
+            // Simular llamada a API
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            setData(prev => prev.filter(item => item.id !== deletingItem.id));
+            closeDeleteModal();
+            setDeletingItem(null);
+        } catch (error) {
+            console.error('Error al eliminar:', error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleCloseEditModal = () => {
+        closeEditModal();
+        setEditingItem(null);
+    };
+
+    const handleCloseDeleteModal = () => {
+        closeDeleteModal();
+        setDeletingItem(null);
     };
 
     return (
         <Stack gap="md">
             <Title order={2}>Inventario General</Title>
 
-            {/* --- Panel de Filtros --- */}
+            {/* Panel de Filtros */}
             <Paper shadow="sm" p="md" withBorder>
                 <Grid>
-
                     <Grid.Col span={{base: 12, sm: 6, md: 4}}>
                         <Select
                             label="Campus"
@@ -153,10 +232,60 @@ export function InventoryView() {
                 </Grid>
             </Paper>
 
-            <Paper shadow="sm" p="md" withBorder>
-                <InventoryTable data={filteredItems}/>
+            {/* Tabla de resultados */}
+            <Paper shadow="sm" withBorder>
+                <InventoryTable
+                    data={filteredItems}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
             </Paper>
 
+            {/* Modal de Edición */}
+            <EditModalForm
+                item={editingItem}
+                opened={editModalOpened}
+                onClose={handleCloseEditModal}
+                onSubmit={handleSaveEdit}
+                isLoading={isSubmitting}
+            />
+
+            {/* Modal de Eliminación */}
+            <Modal
+                opened={deleteModalOpened}
+                onClose={handleCloseDeleteModal}
+                title="Confirmar Eliminación"
+                overlayProps={{
+                    backgroundOpacity: 0.55,
+                    blur: 3,
+                }}
+            >
+                <Stack>
+                    <Text>
+                        ¿Estás seguro de que deseas eliminar el elemento{" "}
+                        <Text span fw={500}>
+                            {deletingItem?.nombre}
+                        </Text>
+                        ? Esta acción no se puede deshacer.
+                    </Text>
+                    <Group justify="flex-end">
+                        <Button
+                            variant="outline"
+                            onClick={handleCloseDeleteModal}
+                            disabled={isSubmitting}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            color="red"
+                            onClick={handleConfirmDelete}
+                            loading={isSubmitting}
+                        >
+                            Eliminar
+                        </Button>
+                    </Group>
+                </Stack>
+            </Modal>
         </Stack>
     );
 }
