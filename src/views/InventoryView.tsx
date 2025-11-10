@@ -28,14 +28,19 @@ export function InventoryView() {
     const [openedEditModal, {open: openEditModal, close: closeEditModal}] = useDisclosure(false);
     const [openedDeleteModal, {open: openDeleteModal, close: closeDeleteModal}] = useDisclosure(false);
 
-    const handleEdit = (item: InventoryItem) => {
+    const onEdit = (item: InventoryItem) => {
         setSelectedItem(item);
         openEditModal();
     }
 
-    const handleDelete = (item: InventoryItem) => {
+    const onDelete = (item: InventoryItem) => {
         setSelectedItem(item);
         openDeleteModal();
+    }
+
+    const handleCloseEdit = () => {
+        closeEditModal();
+        setSelectedItem(null);
     }
 
     const handleSubmitEdit = (updatedItem: InventoryItem) => {
@@ -45,12 +50,23 @@ export function InventoryView() {
         );
         closeEditModal();
         setSelectedItem(null);
+        // TODO: Actualizar en base de datos
+        // TODO: Mostrar notificación de éxito
     }
 
-    const handleCloseEdit = () => {
-        closeEditModal();
-        setSelectedItem(null);
+    const handleSubmitDelete = () => {
+        // TODO: Elminar el item del estado
+        if (selectedItem) {
+            setData(currentData =>
+                currentData.filter(item => item.id !== selectedItem.id)
+            );
+            closeDeleteModal();
+            setSelectedItem(null);
+        }
+        // TODO: Eliminar en base de datos
+        // TODO: Mostrar notificación de éxito
     }
+
 
     // Opciones para filtros
     const campusOptions = useMemo(() =>
@@ -189,8 +205,8 @@ export function InventoryView() {
             <Paper shadow="sm" withBorder>
                 <InventoryTable
                     data={filteredItems}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
                 />
             </Paper>
 
