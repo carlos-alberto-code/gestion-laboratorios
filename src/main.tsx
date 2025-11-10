@@ -1,4 +1,3 @@
-import './index.css'
 import {StrictMode} from 'react'
 import '@mantine/core/styles.css'
 import {createRoot} from 'react-dom/client'

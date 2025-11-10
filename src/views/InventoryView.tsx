@@ -6,19 +6,17 @@ import {
     Paper,
     Grid,
     Select,
-    Modal,
-    Text,
-    Button,
-    Group
+    Modal
 } from '@mantine/core';
 import {useDisclosure} from '@mantine/hooks';
-import {EditModalForm} from "../components/inventory/EditModalForm.tsx";
 import {InventoryTable} from "../components/inventory/InventoryTable.tsx";
 import type {FilterState, InventoryItem, ItemCategory, ItemStatus, LabType} from "../types/inventory.ts";
+import {ItemForm} from "../components/inventory/ItemForm.tsx";
 
 export function InventoryView() {
 
     const [data, setData] = useState<InventoryItem[]>(mockInventory);
+    const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
     const [filters, setFilters] = useState<FilterState>({
         campus: null,
         edificio: null,
@@ -27,14 +25,32 @@ export function InventoryView() {
         estado: null,
     });
 
-    // Estados para modales
-    const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
-    const [deletingItem, setDeletingItem] = useState<InventoryItem | null>(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [openedEditModal, {open: openEditModal, close: closeEditModal}] = useDisclosure(false);
+    const [openedDeleteModal, {open: openDeleteModal, close: closeDeleteModal}] = useDisclosure(false);
 
-    // Usar useDisclosure para mejor control del modal
-    const [editModalOpened, {open: openEditModal, close: closeEditModal}] = useDisclosure(false);
-    const [deleteModalOpened, {open: openDeleteModal, close: closeDeleteModal}] = useDisclosure(false);
+    const handleEdit = (item: InventoryItem) => {
+        setSelectedItem(item);
+        openEditModal();
+    }
+
+    const handleDelete = (item: InventoryItem) => {
+        setSelectedItem(item);
+        openDeleteModal();
+    }
+
+    const handleSubmitEdit = (updatedItem: InventoryItem) => {
+        setData(currentData =>
+            currentData.map(item =>
+                item.id === updatedItem.id ? updatedItem : item)
+        );
+        closeEditModal();
+        setSelectedItem(null);
+    }
+
+    const handleCloseEdit = () => {
+        closeEditModal();
+        setSelectedItem(null);
+    }
 
     // Opciones para filtros
     const campusOptions = useMemo(() =>
@@ -102,69 +118,6 @@ export function InventoryView() {
             [field]: value,
             ...(field === 'campus' && {edificio: null}),
         }));
-    };
-
-    // Manejo de edición
-    const handleEdit = (item: InventoryItem) => {
-        setEditingItem(item);
-        openEditModal();
-    };
-
-    const handleSaveEdit = async (formData: InventoryItem) => {
-        setIsSubmitting(true);
-        try {
-            // Simular llamada a API
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // Actualizar el estado local
-            setData(prev =>
-                prev.map(item =>
-                    item.id === formData.id ? formData : item
-                )
-            );
-
-            // Cerrar modal
-            closeEditModal();
-            setEditingItem(null);
-        } catch (error) {
-            console.error('Error al guardar:', error);
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    // Manejo de eliminación
-    const handleDelete = (item: InventoryItem) => {
-        setDeletingItem(item);
-        openDeleteModal();
-    };
-
-    const handleConfirmDelete = async () => {
-        if (!deletingItem) return;
-
-        setIsSubmitting(true);
-        try {
-            // Simular llamada a API
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            setData(prev => prev.filter(item => item.id !== deletingItem.id));
-            closeDeleteModal();
-            setDeletingItem(null);
-        } catch (error) {
-            console.error('Error al eliminar:', error);
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    const handleCloseEditModal = () => {
-        closeEditModal();
-        setEditingItem(null);
-    };
-
-    const handleCloseDeleteModal = () => {
-        closeDeleteModal();
-        setDeletingItem(null);
     };
 
     return (
@@ -242,50 +195,34 @@ export function InventoryView() {
             </Paper>
 
             {/* Modal de Edición */}
-            <EditModalForm
-                item={editingItem}
-                opened={editModalOpened}
-                onClose={handleCloseEditModal}
-                onSubmit={handleSaveEdit}
-                isLoading={isSubmitting}
-            />
+            <Modal
+                opened={openedEditModal}
+                onClose={handleCloseEdit}
+                title="Editar Item"
+                overlayProps={{
+                    backgroundOpacity: 0.55,
+                    blur: 3,
+                }}
+            >
+                <ItemForm
+                    item={selectedItem}
+                    onSubmit={handleSubmitEdit}
+                    onCancel={handleCloseEdit}
+                />
+            </Modal>
 
             {/* Modal de Eliminación */}
             <Modal
-                opened={deleteModalOpened}
-                onClose={handleCloseDeleteModal}
+                opened={openedDeleteModal}
+                onClose={closeDeleteModal}
                 title="Confirmar Eliminación"
                 overlayProps={{
                     backgroundOpacity: 0.55,
                     blur: 3,
                 }}
             >
-                <Stack>
-                    <Text>
-                        ¿Estás seguro de que deseas eliminar el elemento{" "}
-                        <Text span fw={500}>
-                            {deletingItem?.nombre}
-                        </Text>
-                        ? Esta acción no se puede deshacer.
-                    </Text>
-                    <Group justify="flex-end">
-                        <Button
-                            variant="outline"
-                            onClick={handleCloseDeleteModal}
-                            disabled={isSubmitting}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button
-                            color="red"
-                            onClick={handleConfirmDelete}
-                            loading={isSubmitting}
-                        >
-                            Eliminar
-                        </Button>
-                    </Group>
-                </Stack>
             </Modal>
         </Stack>
-    );
+    )
+        ;
 }
