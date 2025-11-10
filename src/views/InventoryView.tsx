@@ -6,12 +6,18 @@ import {
     Paper,
     Grid,
     Select,
-    Modal
+    Modal,
+    Group,
+    Button,
+    Badge,
+    Text
 } from '@mantine/core';
 import {useDisclosure} from '@mantine/hooks';
+import {notifications} from '@mantine/notifications';
 import {InventoryTable} from "../components/inventory/InventoryTable.tsx";
 import type {FilterState, InventoryItem, ItemCategory, ItemStatus, LabType} from "../types/inventory.ts";
 import {ItemForm} from "../components/inventory/ItemForm.tsx";
+import {IconPlus, IconAlertTriangle} from '@tabler/icons-react';
 
 export function InventoryView() {
 
@@ -25,6 +31,7 @@ export function InventoryView() {
         estado: null,
     });
 
+    const [openedAddModal, {open: openAddModal, close: closeAddModal}] = useDisclosure(false);
     const [openedEditModal, {open: openEditModal, close: closeEditModal}] = useDisclosure(false);
     const [openedDeleteModal, {open: openDeleteModal, close: closeDeleteModal}] = useDisclosure(false);
 
@@ -33,14 +40,14 @@ export function InventoryView() {
         openEditModal();
     }
 
+    const onAdd = () => {
+        setSelectedItem(null);
+        openAddModal();
+    }
+
     const onDelete = (item: InventoryItem) => {
         setSelectedItem(item);
         openDeleteModal();
-    }
-
-    const handleCloseEdit = () => {
-        closeEditModal();
-        setSelectedItem(null);
     }
 
     const handleSubmitEdit = (updatedItem: InventoryItem) => {
@@ -51,20 +58,48 @@ export function InventoryView() {
         closeEditModal();
         setSelectedItem(null);
         // TODO: Actualizar en base de datos
-        // TODO: Mostrar notificación de éxito
+
+        notifications.show({
+            title: '¡Éxito!',
+            message: 'El elemento ha sido actualizado correctamente',
+            color: 'green',
+        });
+    }
+
+    const handleSubmitAdd = (newItem: InventoryItem) => {
+        // Generar ID temporal
+        const itemWithId = {
+            ...newItem,
+            id: `ITEM-${Date.now()}`,
+        };
+
+        setData(currentData => [...currentData, itemWithId]);
+        closeAddModal();
+        setSelectedItem(null);
+        // TODO: Crear en base de datos
+
+        notifications.show({
+            title: '¡Éxito!',
+            message: 'El elemento ha sido creado correctamente',
+            color: 'green',
+        });
     }
 
     const handleSubmitDelete = () => {
-        // TODO: Elminar el item del estado
         if (selectedItem) {
             setData(currentData =>
                 currentData.filter(item => item.id !== selectedItem.id)
             );
             closeDeleteModal();
             setSelectedItem(null);
+            // TODO: Eliminar en base de datos
+
+            notifications.show({
+                title: 'Elemento eliminado',
+                message: 'El elemento ha sido eliminado correctamente',
+                color: 'red',
+            });
         }
-        // TODO: Eliminar en base de datos
-        // TODO: Mostrar notificación de éxito
     }
 
 
@@ -138,7 +173,20 @@ export function InventoryView() {
 
     return (
         <Stack gap="md">
-            <Title order={2}>Inventario General</Title>
+            <Group justify="space-between" align="center">
+                <Group align="center">
+                    <Title order={2}>Inventario General</Title>
+                    <Badge size="lg" variant="filled" color="blue">
+                        {filteredItems.length} {filteredItems.length === 1 ? 'ítem' : 'ítems'}
+                    </Badge>
+                </Group>
+                <Button
+                    leftSection={<IconPlus size={16}/>}
+                    onClick={onAdd}
+                >
+                    Agregar Nuevo Elemento
+                </Button>
+            </Group>
 
             {/* Panel de Filtros */}
             <Paper shadow="sm" p="md" withBorder>
@@ -210,11 +258,30 @@ export function InventoryView() {
                 />
             </Paper>
 
+            {/* Modal de Agregar */}
+            <Modal
+                opened={openedAddModal}
+                onClose={closeAddModal}
+                title="Agregar Nuevo Elemento"
+                size="xl"
+                overlayProps={{
+                    backgroundOpacity: 0.55,
+                    blur: 3,
+                }}
+            >
+                <ItemForm
+                    item={null}
+                    onSubmit={handleSubmitAdd}
+                    onCancel={closeAddModal}
+                />
+            </Modal>
+
             {/* Modal de Edición */}
             <Modal
                 opened={openedEditModal}
-                onClose={handleCloseEdit}
-                title="Editar Item"
+                onClose={closeEditModal}
+                title="Editar Elemento"
+                size="xl"
                 overlayProps={{
                     backgroundOpacity: 0.55,
                     blur: 3,
@@ -223,7 +290,7 @@ export function InventoryView() {
                 <ItemForm
                     item={selectedItem}
                     onSubmit={handleSubmitEdit}
-                    onCancel={handleCloseEdit}
+                    onCancel={closeEditModal}
                 />
             </Modal>
 
@@ -232,13 +299,49 @@ export function InventoryView() {
                 opened={openedDeleteModal}
                 onClose={closeDeleteModal}
                 title="Confirmar Eliminación"
+                centered
                 overlayProps={{
                     backgroundOpacity: 0.55,
                     blur: 3,
                 }}
             >
+                <Stack gap="md">
+                    <Group gap="sm">
+                        <IconAlertTriangle size={24} color="var(--mantine-color-red-6)"/>
+                        <Text size="sm" fw={500}>
+                            Esta acción no se puede deshacer
+                        </Text>
+                    </Group>
+
+                    {selectedItem && (
+                        <Paper p="sm" withBorder bg="gray.0">
+                            <Text size="sm" fw={500} mb={4}>
+                                {selectedItem.nombre}
+                            </Text>
+                            <Text size="xs" c="dimmed">
+                                ID: {selectedItem.id}
+                            </Text>
+                            <Text size="xs" c="dimmed">
+                                Ubicación: {selectedItem.campus} - {selectedItem.edificio} - {selectedItem.laboratorio}
+                            </Text>
+                        </Paper>
+                    )}
+
+                    <Text size="sm" c="dimmed">
+                        ¿Estás seguro de que deseas eliminar este elemento del inventario?
+                    </Text>
+
+                    <Group justify="flex-end" mt="md">
+                        <Button variant="outline" onClick={closeDeleteModal}>
+                            Cancelar
+                        </Button>
+                        <Button color="red" onClick={handleSubmitDelete}>
+                            Eliminar Elemento
+                        </Button>
+                    </Group>
+                </Stack>
             </Modal>
         </Stack>
-    )
-        ;
+    );
 }
+

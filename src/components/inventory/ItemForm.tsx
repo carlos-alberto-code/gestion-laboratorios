@@ -7,11 +7,21 @@ import {
     Group,
     Stack,
     Grid,
-    LoadingOverlay
+    LoadingOverlay,
+    Title,
+    Divider,
+    Text
 } from '@mantine/core';
 import {useForm} from '@mantine/form';
 import type {InventoryItem, ItemCategory, ItemStatus, LabType} from "../../types/inventory.ts";
 import {DatePicker} from "@mantine/dates";
+import {
+    IconDeviceDesktop,
+    IconMapPin,
+    IconInfoCircle,
+    IconCalendar,
+    IconCurrencyDollar
+} from '@tabler/icons-react';
 
 interface ItemFormProps {
     item: InventoryItem | null;
@@ -112,127 +122,172 @@ export function ItemForm(
         return edificiosPorCampus[campus] || [];
     }, [form.values.campus]);
 
-    const handleSubmit = (values: typeof form.values) => {
-        onSubmit(values as InventoryItem);
+    const handleSubmit = (values: InventoryItem) => {
+        onSubmit(values);
     };
 
     return (
         <form onSubmit={form.onSubmit(handleSubmit)}>
             <LoadingOverlay visible={isLoading}/>
 
-            <Stack gap="md">
-                <Grid>
-                    <Grid.Col span={{base: 12, sm: 6}}>
-                        <TextInput
-                            label="Nombre del Equipo"
-                            placeholder="Ej: Computadora Dell Optiplex"
-                            required
-                            {...form.getInputProps('nombre')}
-                        />
-                    </Grid.Col>
+            <Stack gap="lg">
+                {/* Sección: Información General */}
+                <div>
+                    <Group gap="xs" mb="sm">
+                        <IconDeviceDesktop size={20} style={{color: 'var(--mantine-color-blue-6)'}}/>
+                        <Title order={4}>Información General</Title>
+                    </Group>
+                    <Grid>
+                        <Grid.Col span={{base: 12, md: 6}}>
+                            <TextInput
+                                label="Nombre del Equipo"
+                                placeholder="Ej: Computadora Dell Optiplex"
+                                required
+                                leftSection={<IconDeviceDesktop size={16}/>}
+                                {...form.getInputProps('nombre')}
+                            />
+                        </Grid.Col>
 
-                    <Grid.Col span={{base: 12, sm: 6}}>
-                        <Select
-                            label="Categoría"
-                            placeholder="Selecciona una categoría"
-                            required
-                            data={CATEGORY_OPTIONS}
-                            {...form.getInputProps('categoria')}
-                        />
-                    </Grid.Col>
+                        <Grid.Col span={{base: 12, sm: 6, md: 3}}>
+                            <Select
+                                label="Categoría"
+                                placeholder="Selecciona una categoría"
+                                required
+                                data={CATEGORY_OPTIONS}
+                                {...form.getInputProps('categoria')}
+                            />
+                        </Grid.Col>
 
-                    <Grid.Col span={{base: 12, sm: 6}}>
-                        <Select
-                            label="Estado"
-                            placeholder="Selecciona un estado"
-                            required
-                            data={STATUS_OPTIONS}
-                            {...form.getInputProps('estado')}
-                        />
-                    </Grid.Col>
-                </Grid>
+                        <Grid.Col span={{base: 12, sm: 6, md: 3}}>
+                            <Select
+                                label="Estado"
+                                placeholder="Selecciona un estado"
+                                required
+                                data={STATUS_OPTIONS}
+                                {...form.getInputProps('estado')}
+                            />
+                        </Grid.Col>
+                    </Grid>
+                </div>
 
-                <Grid>
-                    <Grid.Col span={{base: 12, sm: 6}}>
-                        <Select
-                            label="Campus"
-                            placeholder="Selecciona un campus"
-                            required
-                            data={CAMPUS_OPTIONS}
-                            {...form.getInputProps('campus')}
-                        />
-                    </Grid.Col>
+                <Divider/>
 
-                    <Grid.Col span={{base: 12, sm: 6}}>
-                        <Select
-                            label="Edificio"
-                            placeholder="Selecciona un edificio"
-                            required
-                            data={edificioOptions}
-                            disabled={!form.values.campus}
-                            {...form.getInputProps('edificio')}
-                        />
-                    </Grid.Col>
+                {/* Sección: Ubicación */}
+                <div>
+                    <Group gap="xs" mb="sm">
+                        <IconMapPin size={20} style={{color: 'var(--mantine-color-green-6)'}}/>
+                        <Title order={4}>Ubicación</Title>
+                    </Group>
+                    <Grid>
+                        <Grid.Col span={{base: 12, sm: 6}}>
+                            <Select
+                                label="Campus"
+                                placeholder="Selecciona un campus"
+                                required
+                                leftSection={<IconMapPin size={16}/>}
+                                data={CAMPUS_OPTIONS}
+                                {...form.getInputProps('campus')}
+                            />
+                        </Grid.Col>
 
-                    <Grid.Col span={{base: 12, sm: 6}}>
-                        <TextInput
-                            label="Laboratorio"
-                            placeholder="Ej: Lab de Computación 1"
-                            required
-                            {...form.getInputProps('laboratorio')}
-                        />
-                    </Grid.Col>
+                        <Grid.Col span={{base: 12, sm: 6}}>
+                            <Select
+                                label="Edificio"
+                                placeholder={form.values.campus ? "Selecciona un edificio" : "Primero selecciona un campus"}
+                                required
+                                data={edificioOptions}
+                                disabled={!form.values.campus}
+                                {...form.getInputProps('edificio')}
+                            />
+                        </Grid.Col>
 
-                    <Grid.Col span={{base: 12, sm: 6}}>
-                        <Select
-                            label="Tipo de Laboratorio"
-                            placeholder="Selecciona un tipo"
-                            required
-                            data={LAB_TYPE_OPTIONS}
-                            {...form.getInputProps('tipoDeLab')}
-                        />
-                    </Grid.Col>
-                </Grid>
+                        <Grid.Col span={{base: 12, sm: 6}}>
+                            <TextInput
+                                label="Laboratorio"
+                                placeholder="Ej: Lab de Computación 1"
+                                required
+                                {...form.getInputProps('laboratorio')}
+                            />
+                        </Grid.Col>
 
-                <Grid>
-                    <Grid.Col span={{base: 12, sm: 6}}>
-                        <DatePicker
-                            value={form.values.fechaAdquisicion ? new Date(form.values.fechaAdquisicion) : null}
-                            onChange={(date) => {
-                                if (date === null) form.setFieldValue('fechaAdquisicion', undefined);
-                                else form.setFieldValue('fechaAdquisicion', date as Date);
-                            }}
-                        />
-                    </Grid.Col>
+                        <Grid.Col span={{base: 12, sm: 6}}>
+                            <Select
+                                label="Tipo de Laboratorio"
+                                placeholder="Selecciona un tipo"
+                                required
+                                data={LAB_TYPE_OPTIONS}
+                                {...form.getInputProps('tipoDeLab')}
+                            />
+                        </Grid.Col>
+                    </Grid>
+                </div>
 
-                    <Grid.Col span={{base: 12, sm: 6}}>
-                        <DatePicker
-                            value={form.values.fechaAdquisicion ? new Date(form.values.fechaAdquisicion) : null}
-                            onChange={(date) => {
-                                if (date === null) form.setFieldValue('fechaAdquisicion', undefined);
-                                else form.setFieldValue('fechaAdquisicion', date as Date);
-                            }}
-                        /> </Grid.Col>
+                <Divider/>
 
-                    <Grid.Col span={{base: 12, sm: 6}}>
-                        <TextInput
-                            label="Proveedor"
-                            placeholder="Ej: Dell Technologies"
-                            {...form.getInputProps('proveedor')}
-                        />
-                    </Grid.Col>
+                {/* Sección: Información Adicional */}
+                <div>
+                    <Group gap="xs" mb="sm">
+                        <IconInfoCircle size={20} style={{color: 'var(--mantine-color-violet-6)'}}/>
+                        <Title order={4}>Información Adicional</Title>
+                    </Group>
+                    <Text size="xs" c="dimmed" mb="md">
+                        Los siguientes campos son opcionales
+                    </Text>
+                    <Grid>
+                        <Grid.Col span={{base: 12, sm: 6}}>
+                            <DatePicker
+                                // label="Fecha de Adquisición"
+                                // placeholder="Selecciona una fecha"
+                                // leftSection={<IconCalendar size={16}/>}
+                                value={form.values.fechaAdquisicion ? new Date(form.values.fechaAdquisicion) : null}
+                                onChange={(date) => {
+                                    if (date === null) form.setFieldValue('fechaAdquisicion', undefined);
+                                    else form.setFieldValue('fechaAdquisicion', date as Date);
+                                }}
+                                // clearable
+                            />
+                        </Grid.Col>
 
-                    <Grid.Col span={{base: 12, sm: 6}}>
-                        <NumberInput
-                            label="Costo (USD)"
-                            placeholder="0.00"
-                            min={0}
-                            {...form.getInputProps('costo')}
-                        />
-                    </Grid.Col>
-                </Grid>
+                        <Grid.Col span={{base: 12, sm: 6}}>
+                            <DatePicker
+                                // label="Último Mantenimiento"
+                                // placeholder="Selecciona una fecha"
+                                // leftSection={<IconCalendar size={16}/>}
+                                value={form.values.ultimoMantenimiento ? new Date(form.values.ultimoMantenimiento) : null}
+                                onChange={(date) => {
+                                    if (date === null) form.setFieldValue('ultimoMantenimiento', undefined);
+                                    else form.setFieldValue('ultimoMantenimiento', date as Date);
+                                }}
+                                // clearable
+                            />
+                        </Grid.Col>
 
-                <Group justify="flex-end" mt="xl">
+                        <Grid.Col span={{base: 12, sm: 6}}>
+                            <TextInput
+                                label="Proveedor"
+                                placeholder="Ej: Dell Technologies"
+                                {...form.getInputProps('proveedor')}
+                            />
+                        </Grid.Col>
+
+                        <Grid.Col span={{base: 12, sm: 6}}>
+                            <NumberInput
+                                label="Costo (USD)"
+                                placeholder="0.00"
+                                min={0}
+                                decimalScale={2}
+                                fixedDecimalScale
+                                leftSection={<IconCurrencyDollar size={16}/>}
+                                thousandSeparator=","
+                                {...form.getInputProps('costo')}
+                            />
+                        </Grid.Col>
+                    </Grid>
+                </div>
+
+                <Divider/>
+
+                <Group justify="flex-end" mt="md">
                     <Button variant="outline" onClick={onCancel}>
                         Cancelar
                     </Button>
@@ -244,3 +299,4 @@ export function ItemForm(
         </form>
     );
 }
+
