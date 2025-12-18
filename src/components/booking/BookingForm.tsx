@@ -7,6 +7,7 @@ import type {Booking} from '../../types/booking';
 import type {LabType} from '../../types/inventory';
 
 interface BookingFormProps {
+    initialData?: Booking | null;
     onSubmit: (values: Omit<Booking, 'id' | 'laboratorioNombre' | 'estado'>) => void;
     onCancel: () => void;
 }
@@ -21,18 +22,18 @@ const LAB_TYPE_OPTIONS: LabType[] = [
     'Laboratorio de Electrónica'
 ];
 
-export function BookingForm({onSubmit, onCancel}: BookingFormProps) {
+export function BookingForm({onSubmit, onCancel, initialData}: BookingFormProps) {
     const form = useForm({
         initialValues: {
-            asunto: '',
-            solicitante: '',
+            asunto: initialData?.asunto || '',
+            solicitante: initialData?.solicitante || '',
             campus: '',
             edificio: '',
-            tipoDeLab: '' as LabType | '',
-            laboratorioId: '', // Aquí simularemos que seleccionamos un ID
-            fecha: new Date(),
-            horaInicio: '',
-            horaFin: '',
+            tipoDeLab: initialData?.tipoDeLab || '',
+            laboratorioId: initialData?.laboratorioId || '',
+            fecha: initialData?.fecha ? new Date(initialData.fecha) : new Date(),
+            horaInicio: initialData?.horaInicio || '',
+            horaFin: initialData?.horaFin || '',
         },
         validate: {
             asunto: (value) => (value.length < 3 ? 'El asunto es muy corto' : null),
@@ -46,7 +47,6 @@ export function BookingForm({onSubmit, onCancel}: BookingFormProps) {
         },
     });
 
-    // Mock de edificios basado en campus (igual que en Inventory)
     const edificioOptions = useMemo(() => {
         if (!form.values.campus) return [];
         const map: Record<string, string[]> = {
@@ -166,7 +166,7 @@ export function BookingForm({onSubmit, onCancel}: BookingFormProps) {
 
                 <Group justify="flex-end" mt="md">
                     <Button variant="default" onClick={onCancel}>Cancelar</Button>
-                    <Button type="submit">Crear Reservación</Button>
+                    <Button type="submit">{initialData ? 'Guardar Cambios' : 'Crear Reservación'}</Button>
                 </Group>
             </Stack>
         </form>

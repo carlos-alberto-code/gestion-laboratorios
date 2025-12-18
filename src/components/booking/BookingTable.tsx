@@ -4,9 +4,11 @@ import type {Booking} from '../../types/booking';
 
 interface BookingTableProps {
     data: Booking[];
+    onEdit: (item: Booking) => void;
+    onDelete: (item: Booking) => void;
 }
 
-export function BookingTable({data}: BookingTableProps) {
+export function BookingTable({data, onEdit, onDelete}: BookingTableProps) {
     const getStatusColor = (estado: string) => {
         switch (estado) {
             case 'Confirmada':
@@ -65,12 +67,16 @@ export function BookingTable({data}: BookingTableProps) {
                         <Menu.Item leftSection={<IconEye style={{width: rem(16), height: rem(16)}}/>}>
                             Ver detalles
                         </Menu.Item>
-                        <Menu.Item leftSection={<IconEdit style={{width: rem(16), height: rem(16)}}/>}>
+                        <Menu.Item
+                            leftSection={<IconEdit style={{width: rem(16), height: rem(16)}}/>}
+                            onClick={() => onEdit(item)}
+                        >
                             Editar
                         </Menu.Item>
                         <Menu.Item
                             leftSection={<IconTrash style={{width: rem(16), height: rem(16)}}/>}
                             color="red"
+                            onClick={() => onDelete(item)}
                         >
                             Cancelar
                         </Menu.Item>
