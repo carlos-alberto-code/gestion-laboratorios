@@ -3,7 +3,6 @@ import {AppShell, NavLink, Title, Group} from '@mantine/core';
 import {
     IconHome,
     IconArchive,
-    IconBuildingWarehouse,
     IconCalendarEvent,
     IconChartBar,
     IconFlask,
@@ -13,9 +12,8 @@ import {StatsView} from './views/StatsView.tsx';
 import {BookingView} from './views/BookingView.tsx';
 import {DashboardView} from './views/DashboardView.tsx';
 import {InventoryView} from './views/InventoryView.tsx';
-import {LabManagementView} from './views/LabManagementView.tsx';
 
-type ActiveView = 'dashboard' | 'inventory' | 'labs' | 'booking' | 'stats';
+type ActiveView = 'dashboard' | 'inventory' | 'booking' | 'stats';
 
 export function Sidebar() {
 
@@ -27,8 +25,6 @@ export function Sidebar() {
                 return <DashboardView/>;
             case 'inventory':
                 return <InventoryView/>;
-            case 'labs':
-                return <LabManagementView/>;
             case 'booking':
                 return <BookingView/>;
             case 'stats':
@@ -59,16 +55,10 @@ export function Sidebar() {
                     onClick={() => setActiveView('dashboard')}
                 />
                 <NavLink
-                    label="Inventario General"
+                    label="Inventario"
                     leftSection={<IconArchive size="1rem" stroke={1.5}/>}
                     active={activeView === 'inventory'}
                     onClick={() => setActiveView('inventory')}
-                />
-                <NavLink
-                    label="Gestión de Laboratorios"
-                    leftSection={<IconBuildingWarehouse size="1rem" stroke={1.5}/>}
-                    active={activeView === 'labs'}
-                    onClick={() => setActiveView('labs')}
                 />
                 <NavLink
                     label="Reservaciones"

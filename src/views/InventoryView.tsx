@@ -174,7 +174,7 @@ export function InventoryView() {
         <Stack gap="md">
             <Group justify="space-between" align="center">
                 <Group align="center">
-                    <Title order={2}>Inventario General</Title>
+                    <Title order={2}>Inventario</Title>
                 </Group>
                 <Button
                     leftSection={<IconPlus size={16}/>}
