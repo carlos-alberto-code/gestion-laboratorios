@@ -1,5 +1,4 @@
-import {useMemo, useState} from "react";
-import mockInventory from "../mocks/inventory.ts";
+import {useMemo, useState, useEffect, useCallback} from "react";
 import {
     Title,
     Stack,
@@ -9,19 +8,30 @@ import {
     Modal,
     Group,
     Button,
-    Text
+    Text,
+    LoadingOverlay
 } from '@mantine/core';
 import {useDisclosure} from '@mantine/hooks';
 import {notifications} from '@mantine/notifications';
-import {InventoryTable} from "../components/inventory/InventoryTable.tsx";
-import type {FilterState, InventoryItem, ItemCategory, ItemStatus, LabType} from "../types/inventory.ts";
-import {ItemForm} from "../components/inventory/ItemForm.tsx";
-import {IconPlus, IconAlertTriangle} from '@tabler/icons-react';
+import {IconPlus, IconAlertTriangle, IconRefresh} from '@tabler/icons-react';
+
+// Imports de Arquitectura
+import {InventoryTable} from "../components/inventory/InventoryTable";
+import {ItemForm} from "../components/inventory/ItemForm";
+import type {FilterState, InventoryItem, ItemCategory, ItemStatus, LabType} from "../types/inventory";
+import {MockInventoryService} from "../services/MockInventoryService";
+
+// Instancia del servicio
+const inventoryService = new MockInventoryService();
 
 export function InventoryView() {
 
-    const [data, setData] = useState<InventoryItem[]>(mockInventory);
+    // --- ESTADOS DE DATOS ---
+    const [data, setData] = useState<InventoryItem[]>([]);
+    const [loading, setLoading] = useState(true);
     const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+
+    // --- ESTADOS DE FILTROS ---
     const [filters, setFilters] = useState<FilterState>({
         campus: null,
         edificio: null,
@@ -30,9 +40,35 @@ export function InventoryView() {
         estado: null,
     });
 
+    // --- MODALES ---
     const [openedAddModal, {open: openAddModal, close: closeAddModal}] = useDisclosure(false);
     const [openedEditModal, {open: openEditModal, close: closeEditModal}] = useDisclosure(false);
     const [openedDeleteModal, {open: openDeleteModal, close: closeDeleteModal}] = useDisclosure(false);
+
+    // --- CARGA DE DATOS (READ) ---
+    const loadInventory = useCallback(async () => {
+        setLoading(true);
+        try {
+            const result = await inventoryService.getAll();
+            setData(result);
+        } catch (error) {
+            notifications.show({
+                title: 'Error',
+                message: 'No se pudo cargar el inventario',
+                color: 'red',
+            });
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        loadInventory();
+    }, [loadInventory]);
+
+
+    // --- MANEJADORES DE ACCIONES (HANDLERS) ---
 
     const onEdit = (item: InventoryItem) => {
         setSelectedItem(item);
@@ -49,60 +85,79 @@ export function InventoryView() {
         openDeleteModal();
     }
 
-    const handleSubmitEdit = (updatedItem: InventoryItem) => {
-        setData(currentData =>
-            currentData.map(item =>
-                item.id === updatedItem.id ? updatedItem : item)
-        );
-        closeEditModal();
-        setSelectedItem(null);
-        // TODO: Actualizar en base de datos
+    // --- LOGICA CRUD CON SERVICIO ---
 
-        notifications.show({
-            title: '¡Éxito!',
-            message: 'El elemento ha sido actualizado correctamente',
-            color: 'green',
-        });
-    }
+    const handleSubmitEdit = async (updatedItem: InventoryItem) => {
+        setLoading(true); // Bloqueamos UI
+        try {
+            await inventoryService.update(updatedItem);
+            await loadInventory(); // Recargamos para ver cambios
 
-    const handleSubmitAdd = (newItem: InventoryItem) => {
-        // Generar ID temporal
-        const itemWithId = {
-            ...newItem,
-            id: `ITEM-${Date.now()}`,
-        };
-
-        setData(currentData => [...currentData, itemWithId]);
-        closeAddModal();
-        setSelectedItem(null);
-        // TODO: Crear en base de datos
-
-        notifications.show({
-            title: '¡Éxito!',
-            message: 'El elemento ha sido creado correctamente',
-            color: 'green',
-        });
-    }
-
-    const handleSubmitDelete = () => {
-        if (selectedItem) {
-            setData(currentData =>
-                currentData.filter(item => item.id !== selectedItem.id)
-            );
-            closeDeleteModal();
+            closeEditModal();
             setSelectedItem(null);
-            // TODO: Eliminar en base de datos
 
             notifications.show({
-                title: 'Elemento eliminado',
-                message: 'El elemento ha sido eliminado correctamente',
-                color: 'red',
+                title: '¡Éxito!',
+                message: 'El elemento ha sido actualizado correctamente',
+                color: 'green',
             });
+        } catch (error) {
+            notifications.show({title: 'Error', message: 'Fallo al actualizar', color: 'red'});
+            console.error(error)
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const handleSubmitAdd = async (newItem: InventoryItem) => {
+        setLoading(true);
+        try {
+            // El servicio se encarga de generar el ID
+            await inventoryService.create(newItem);
+            await loadInventory();
+
+            closeAddModal();
+            setSelectedItem(null);
+
+            notifications.show({
+                title: '¡Éxito!',
+                message: 'El elemento ha sido creado correctamente',
+                color: 'green',
+            });
+        } catch (error) {
+            notifications.show({title: 'Error', message: 'Fallo al crear', color: 'red'});
+            console.error(error)
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const handleSubmitDelete = async () => {
+        if (selectedItem) {
+            setLoading(true);
+            try {
+                await inventoryService.delete(selectedItem.id);
+                await loadInventory();
+
+                closeDeleteModal();
+                setSelectedItem(null);
+
+                notifications.show({
+                    title: 'Elemento eliminado',
+                    message: 'El elemento ha sido eliminado correctamente',
+                    color: 'blue', // Usualmente eliminar no es "rojo" de error, sino informativo
+                });
+            } catch (error) {
+                notifications.show({title: 'Error', message: 'Fallo al eliminar', color: 'red'});
+                console.error(error)
+            } finally {
+                setLoading(false);
+            }
         }
     }
 
 
-    // Opciones para filtros
+    // --- OPCIONES DE FILTROS (Mantenemos tu lógica original) ---
     const campusOptions = useMemo(() =>
             Array.from(new Set(data.map(item => item.campus)))
                 .map(campus => ({value: campus, label: campus})),
@@ -139,7 +194,7 @@ export function InventoryView() {
             .map(edificio => ({value: edificio, label: edificio}));
     }, [data, filters.campus]);
 
-    // Filtrado de items
+    // --- FILTRADO DE ITEMS ---
     const filteredItems = useMemo(() => {
         let items = data;
 
@@ -170,11 +225,19 @@ export function InventoryView() {
         }));
     };
 
+    // --- RENDER ---
     return (
-        <Stack gap="md">
+        <Stack gap="md" pos="relative">
+            {/* Loading Global para simular petición */}
+            <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{radius: "sm", blur: 2}}/>
+
             <Group justify="space-between" align="center">
                 <Group align="center">
                     <Title order={2}>Inventario</Title>
+                    {/* Botón de refrescar manual opcional */}
+                    <Button variant="subtle" size="xs" onClick={loadInventory} leftSection={<IconRefresh size={14}/>}>
+                        Refrescar
+                    </Button>
                 </Group>
                 <Button
                     leftSection={<IconPlus size={16}/>}
@@ -269,6 +332,7 @@ export function InventoryView() {
                     item={null}
                     onSubmit={handleSubmitAdd}
                     onCancel={closeAddModal}
+                    isLoading={loading}
                 />
             </Modal>
 
@@ -287,6 +351,7 @@ export function InventoryView() {
                     item={selectedItem}
                     onSubmit={handleSubmitEdit}
                     onCancel={closeEditModal}
+                    isLoading={loading}
                 />
             </Modal>
 
@@ -331,7 +396,7 @@ export function InventoryView() {
                         <Button variant="outline" onClick={closeDeleteModal}>
                             Cancelar
                         </Button>
-                        <Button color="red" onClick={handleSubmitDelete}>
+                        <Button color="red" onClick={handleSubmitDelete} loading={loading}>
                             Eliminar Elemento
                         </Button>
                     </Group>
@@ -340,4 +405,3 @@ export function InventoryView() {
         </Stack>
     );
 }
-
