@@ -9,7 +9,7 @@ import {Sidebar} from "./Sidebar.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
-        <MantineProvider defaultColorScheme="light">
+        <MantineProvider defaultColorScheme="auto">
             <Notifications position="top-right" zIndex={1000}/>
             <Sidebar/>
         </MantineProvider>
