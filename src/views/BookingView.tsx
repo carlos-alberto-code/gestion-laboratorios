@@ -1,6 +1,6 @@
 import {useState, useEffect, useCallback} from 'react';
-import {Title, Text, Stack, Button, Group, TextInput, Paper, ActionIcon, Modal, LoadingOverlay} from '@mantine/core';
-import {IconPlus, IconSearch, IconAdjustments, IconCalendar} from '@tabler/icons-react';
+import {Title, Text, Stack, Button, Group, TextInput, Paper, Modal, LoadingOverlay} from '@mantine/core';
+import {IconPlus, IconSearch, IconCalendar} from '@tabler/icons-react';
 import {DatePickerInput} from '@mantine/dates';
 import {useDisclosure} from '@mantine/hooks';
 import {notifications} from '@mantine/notifications';
@@ -230,9 +230,6 @@ export function BookingView() {
                             style={{width: 220}}
                             clearable
                         />
-                        <ActionIcon variant="default" size="lg" aria-label="Filtros avanzados">
-                            <IconAdjustments size={18}/>
-                        </ActionIcon>
                     </Group>
                 </Paper>
 
