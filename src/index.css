@@ -3,8 +3,9 @@
 }
 
 body {
-    /* Mantine gray.0 */
+    /* Un gris muy suave, casi blanco, pero suficiente para crear contraste */
     background-color: #f8f9fa;
+    color: #212529;
     margin: 0;
-    padding: 0;
+    -webkit-font-smoothing: antialiased; /* Hace que la fuente se vea más nítida */
 }

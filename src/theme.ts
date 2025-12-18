@@ -1,61 +1,72 @@
-import {createTheme, rem} from '@mantine/core';
+import {createTheme, type MantineColorsTuple} from '@mantine/core';
+
+// Definimos nuestra paleta personalizada "Rojo Universitario".
+// Generada para ser seria y legible, no agresiva.
+const universityRed: MantineColorsTuple = [
+    '#ffe9e9', // 0 - Fondos muy claros (ej. hover suave)
+    '#ffd1d1', // 1
+    '#fba0a1', // 2
+    '#f76d6e', // 3
+    '#f33f42', // 4
+    '#f02427', // 5
+    '#d61a1d', // 6 -> Este será nuestro COLOR PRINCIPAL (Primary)
+    '#c01014', // 7 -> Hover de botones
+    '#aa060e', // 8
+    '#960007'  // 9 - Textos oscuros
+];
 
 export const theme = createTheme({
-    // Color primario: Usaremos 'indigo' o 'blue' pero ajustando el tono
-    primaryColor: 'indigo',
-    primaryShade: 6,
-
-    // Tipografía
-    fontFamily: 'Inter, system-ui, Avenir, Helvetica, Arial, sans-serif',
-    headings: {
-        fontFamily: 'Inter, system-ui, sans-serif',
-        sizes: {
-            h1: {fontSize: rem(36)},
-            h2: {fontSize: rem(30)},
-        },
+    // 1. Inyectamos nuestra paleta con el nombre 'brand'
+    colors: {
+        brand: universityRed,
     },
 
-    // Estilos por defecto para componentes
+    // 2. Le decimos a Mantine que use 'brand' como el color de TODA la app
+    primaryColor: 'brand',
+    primaryShade: 6, // Usamos el tono #d61a1d como base (serio y fuerte)
+
+    // Configuración base (igual que antes pero ajustada al rojo)
+    defaultRadius: 'md',
+    fontFamily: 'Inter, system-ui, sans-serif',
+
     components: {
         Button: {
             defaultProps: {
-                size: 'md',
-                radius: 'md',
+                size: 'sm',
+                fw: 600,
             },
+            styles: {
+                // Hacemos que los botones tengan un degradado sutil si quisieras,
+                // pero plano es más moderno.
+                root: {textTransform: 'uppercase', letterSpacing: '0.5px'}
+            }
         },
+        // Los inputs filled en rojo suave se ven muy bien
         TextInput: {
-            defaultProps: {
-                variant: 'filled', // Fondo grisáceo, mejor para formularios largos
-                radius: 'md',
-            },
+            defaultProps: {variant: 'filled'},
         },
-        Select: {
-            defaultProps: {
-                variant: 'filled',
-                radius: 'md',
-            },
+        // Ajustamos los badges para que usen nuestro rojo
+        Badge: {
+            defaultProps: {radius: 'sm', variant: 'light'},
         },
+        // Las tarjetas mantienen la limpieza
         Paper: {
             defaultProps: {
-                shadow: 'xs', // Sombra sutil siempre
+                shadow: 'sm',
                 radius: 'md',
                 withBorder: true,
             },
         },
-        Table: {
+        // Un toque especial: La barra de navegación activa
+        NavLink: {
             defaultProps: {
-                verticalSpacing: 'sm',
-                striped: true,
-                highlightOnHover: true,
+                variant: 'light',
+                color: 'brand',
             },
-        },
-        Modal: {
-            defaultProps: {
-                radius: 'md',
-                overlayProps: {
-                    backgroundOpacity: 0.55,
-                    blur: 3,
-                }
+            styles: {
+                // Hacemos que el link activo tenga una barra lateral roja gruesa
+                root: {position: 'relative'},
+                label: {fontWeight: 500}
             }
         }
     },
