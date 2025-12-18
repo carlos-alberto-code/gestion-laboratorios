@@ -1,5 +1,5 @@
 import {Table, Badge, Text, Group, Avatar, ActionIcon, Menu, rem} from '@mantine/core';
-import {IconDots, IconEye, IconEdit, IconTrash} from '@tabler/icons-react';
+import {IconDots, IconEdit, IconTrash} from '@tabler/icons-react';
 import type {Booking} from '../../types/booking';
 
 interface BookingTableProps {
@@ -64,9 +64,6 @@ export function BookingTable({data, onEdit, onDelete}: BookingTableProps) {
                         </ActionIcon>
                     </Menu.Target>
                     <Menu.Dropdown>
-                        <Menu.Item leftSection={<IconEye style={{width: rem(16), height: rem(16)}}/>}>
-                            Ver detalles
-                        </Menu.Item>
                         <Menu.Item
                             leftSection={<IconEdit style={{width: rem(16), height: rem(16)}}/>}
                             onClick={() => onEdit(item)}

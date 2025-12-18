@@ -1,4 +1,4 @@
-import {useMemo} from 'react';
+import {useMemo, useEffect} from 'react';
 import {Button, Group, Stack, TextInput, Select, Grid} from '@mantine/core';
 import {useForm} from '@mantine/form';
 import {DatePickerInput, TimeInput} from '@mantine/dates';
@@ -12,7 +12,6 @@ interface BookingFormProps {
     onCancel: () => void;
 }
 
-// Opciones simuladas (mismos datos que en ItemForm para consistencia)
 const CAMPUS_OPTIONS = ['Campus Central', 'Campus Norte', 'Campus Sur'];
 const LAB_TYPE_OPTIONS: LabType[] = [
     'Laboratorio de Cómputo',
@@ -29,7 +28,7 @@ export function BookingForm({onSubmit, onCancel, initialData}: BookingFormProps)
             solicitante: initialData?.solicitante || '',
             campus: '',
             edificio: '',
-            tipoDeLab: initialData?.tipoDeLab || '',
+            tipoDeLab: initialData?.tipoDeLab || '' as LabType | '',
             laboratorioId: initialData?.laboratorioId || '',
             fecha: initialData?.fecha ? new Date(initialData.fecha) : new Date(),
             horaInicio: initialData?.horaInicio || '',
@@ -47,6 +46,24 @@ export function BookingForm({onSubmit, onCancel, initialData}: BookingFormProps)
         },
     });
 
+    useEffect(() => {
+        if (initialData) {
+            form.setValues({
+                asunto: initialData.asunto,
+                solicitante: initialData.solicitante,
+                campus: 'Campus Central',
+                edificio: 'Edificio A',
+                tipoDeLab: initialData.tipoDeLab,
+                laboratorioId: initialData.laboratorioId,
+                fecha: new Date(initialData.fecha),
+                horaInicio: initialData.horaInicio,
+                horaFin: initialData.horaFin,
+            });
+        } else {
+            form.reset();
+        }
+    }, [initialData]);
+
     const edificioOptions = useMemo(() => {
         if (!form.values.campus) return [];
         const map: Record<string, string[]> = {
@@ -57,10 +74,8 @@ export function BookingForm({onSubmit, onCancel, initialData}: BookingFormProps)
         return map[form.values.campus] || [];
     }, [form.values.campus]);
 
-    // Mock de laboratorios disponibles basado en filtros
     const laboratorioOptions = useMemo(() => {
         if (!form.values.edificio || !form.values.tipoDeLab) return [];
-        // Simulamos que encontramos labs disponibles
         return [
             {value: 'LAB-101', label: `Lab 101 (${form.values.tipoDeLab})`},
             {value: 'LAB-102', label: `Lab 102 (${form.values.tipoDeLab})`},
@@ -77,7 +92,6 @@ export function BookingForm({onSubmit, onCancel, initialData}: BookingFormProps)
     return (
         <form onSubmit={form.onSubmit(handleSubmit)}>
             <Stack gap="md">
-                {/* Sección 1: Detalles de la Reserva */}
                 <Grid>
                     <Grid.Col span={12}>
                         <TextInput
@@ -98,7 +112,6 @@ export function BookingForm({onSubmit, onCancel, initialData}: BookingFormProps)
                     </Grid.Col>
                 </Grid>
 
-                {/* Sección 2: Ubicación y Recurso */}
                 <Grid>
                     <Grid.Col span={{base: 12, sm: 6}}>
                         <Select
@@ -137,7 +150,6 @@ export function BookingForm({onSubmit, onCancel, initialData}: BookingFormProps)
                     </Grid.Col>
                 </Grid>
 
-                {/* Sección 3: Fecha y Hora */}
                 <Grid>
                     <Grid.Col span={{base: 12, sm: 4}}>
                         <DatePickerInput
