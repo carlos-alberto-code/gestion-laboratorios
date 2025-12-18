@@ -4,16 +4,15 @@ import {
     IconHome,
     IconArchive,
     IconCalendarEvent,
-    IconChartBar,
-    IconFlask,
+    IconFlask, IconArrowsExchange,
 } from '@tabler/icons-react';
 
-import {StatsView} from './views/StatsView.tsx';
 import {BookingView} from './views/BookingView.tsx';
 import {DashboardView} from './views/DashboardView.tsx';
 import {InventoryView} from './views/InventoryView.tsx';
+import {MovementsView} from "./views/MovementsView.tsx";
 
-type ActiveView = 'dashboard' | 'inventory' | 'booking' | 'stats';
+type ActiveView = 'dashboard' | 'inventory' | 'booking' | 'movements';
 
 export function Sidebar() {
 
@@ -27,8 +26,8 @@ export function Sidebar() {
                 return <InventoryView/>;
             case 'booking':
                 return <BookingView/>;
-            case 'stats':
-                return <StatsView/>;
+            case 'movements':
+                return <MovementsView/>;
             default:
                 return <DashboardView/>;
         }
@@ -61,16 +60,16 @@ export function Sidebar() {
                     onClick={() => setActiveView('inventory')}
                 />
                 <NavLink
+                    label="Movimientos"
+                    leftSection={<IconArrowsExchange size="1rem" stroke={1.5}/>}
+                    active={activeView === 'movements'}
+                    onClick={() => setActiveView('movements')}
+                />
+                <NavLink
                     label="Reservaciones"
                     leftSection={<IconCalendarEvent size="1rem" stroke={1.5}/>}
                     active={activeView === 'booking'}
                     onClick={() => setActiveView('booking')}
-                />
-                <NavLink
-                    label="Estadísticas"
-                    leftSection={<IconChartBar size="1rem" stroke={1.5}/>}
-                    active={activeView === 'stats'}
-                    onClick={() => setActiveView('stats')}
                 />
             </AppShell.Navbar>
 
