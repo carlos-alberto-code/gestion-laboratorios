@@ -13,8 +13,11 @@ import {
     Badge,
     LoadingOverlay,
     Button,
-    rem
+    rem,
+    Modal,      // <--- Agregado
+    ScrollArea  // <--- Agregado
 } from '@mantine/core';
+import {useDisclosure} from '@mantine/hooks'; // <--- Agregado
 import {
     IconCpu,
     IconAlertTriangle,
@@ -27,11 +30,15 @@ import {
 
 // Importaciones limpias
 import {MockDashboardService} from '../services/MockDashboardService';
+import {MockBookingService} from '../services/MockBookingService'; // <--- Agregado
+import {AgendaTimeline} from '../components/dashboard/AgendaTimeline'; // <--- Agregado: Tu nuevo componente
+
 import type {DashboardKPIs, AssetDistribution} from '../types/dashboard';
 import type {Booking} from '../types/booking';
 
-// Instancia del servicio (Singleton)
+// Instancia de servicios (Singleton)
 const dashboardService = new MockDashboardService();
+const bookingService = new MockBookingService(); // <--- Instancia del servicio de agenda
 
 export function DashboardView() {
     // --- ESTADO ---
@@ -39,6 +46,11 @@ export function DashboardView() {
     const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
     const [distribution, setDistribution] = useState<AssetDistribution[]>([]);
     const [recentActivity, setRecentActivity] = useState<Booking[]>([]);
+
+    // --- ESTADO NUEVO PARA AGENDA ---
+    const [openedAgenda, {open: openAgenda, close: closeAgenda}] = useDisclosure(false);
+    const [agendaData, setAgendaData] = useState<Booking[]>([]);
+    const [loadingAgenda, setLoadingAgenda] = useState(false);
 
     // --- LÓGICA DE NEGOCIO ---
     const loadData = useCallback(async () => {
@@ -59,6 +71,23 @@ export function DashboardView() {
             setLoading(false);
         }
     }, []);
+
+    // Nueva función para cargar la agenda completa
+    const handleOpenAgenda = async () => {
+        openAgenda();
+        // Solo cargamos si no tenemos datos previos para optimizar
+        if (agendaData.length === 0) {
+            setLoadingAgenda(true);
+            try {
+                const allBookings = await bookingService.getAll();
+                setAgendaData(allBookings);
+            } catch (error) {
+                console.error("Error cargando agenda:", error);
+            } finally {
+                setLoadingAgenda(false);
+            }
+        }
+    };
 
     useEffect(() => {
         loadData();
@@ -115,30 +144,13 @@ export function DashboardView() {
 
             {/* KPIs */}
             <SimpleGrid cols={{base: 1, sm: 2, md: 4}}>
-                <StatCard
-                    title="Total Activos"
-                    value={kpis?.totalActivos || 0}
-                    icon={IconCpu}
-                    color="brand"
-                />
-                <StatCard
-                    title="En Mantenimiento"
-                    value={kpis?.activosEnMantenimiento || 0}
-                    icon={IconAlertTriangle}
-                    color="yellow"
-                />
-                <StatCard
-                    title="Valor Inventario"
-                    value={formatCurrency(kpis?.valorTotalInventario || 0)}
-                    icon={IconCoin}
-                    color="grape"
-                />
-                <StatCard
-                    title="Reservas Activas"
-                    value={kpis?.reservasActivas || 0}
-                    icon={IconCalendarStats}
-                    color="teal"
-                />
+                <StatCard title="Total Activos" value={kpis?.totalActivos || 0} icon={IconCpu} color="brand"/>
+                <StatCard title="En Mantenimiento" value={kpis?.activosEnMantenimiento || 0} icon={IconAlertTriangle}
+                          color="yellow"/>
+                <StatCard title="Valor Inventario" value={formatCurrency(kpis?.valorTotalInventario || 0)}
+                          icon={IconCoin} color="grape"/>
+                <StatCard title="Reservas Activas" value={kpis?.reservasActivas || 0} icon={IconCalendarStats}
+                          color="teal"/>
             </SimpleGrid>
 
             {/* Gráficas y Tablas */}
@@ -151,11 +163,7 @@ export function DashboardView() {
                                 size={220}
                                 thickness={24}
                                 roundCaps
-                                label={
-                                    <Text size="xs" ta="center" px="xs" c="dimmed" style={{pointerEvents: 'none'}}>
-                                        Total
-                                    </Text>
-                                }
+                                label={<Text size="xs" ta="center" px="xs" c="dimmed">Total</Text>}
                                 sections={distribution.map(d => ({
                                     value: d.percentage,
                                     color: d.color,
@@ -183,7 +191,14 @@ export function DashboardView() {
                     <Paper withBorder p="md" radius="md" h="100%">
                         <Group justify="space-between" mb="md">
                             <Title order={4}>Actividad Reciente</Title>
-                            <Button variant="subtle" color="brand" size="xs" rightSection={<IconArrowRight size={14}/>}>
+                            {/* --- BOTÓN ACTUALIZADO --- */}
+                            <Button
+                                variant="subtle"
+                                color="brand"
+                                size="xs"
+                                rightSection={<IconArrowRight size={14}/>}
+                                onClick={handleOpenAgenda} // <--- Conectado
+                            >
                                 Ver agenda
                             </Button>
                         </Group>
@@ -236,6 +251,22 @@ export function DashboardView() {
                     </Paper>
                 </Grid.Col>
             </Grid>
+
+            {/* --- MODAL PARA VER LA AGENDA COMPLETA --- */}
+            <Modal
+                opened={openedAgenda}
+                onClose={closeAgenda}
+                title={<Title order={3}>Agenda Próximos 7 Días</Title>}
+                size="md"
+                centered
+                scrollAreaComponent={ScrollArea.Autosize}
+            >
+                <div style={{position: 'relative', minHeight: 150}}>
+                    <LoadingOverlay visible={loadingAgenda} zIndex={100} overlayProps={{radius: "sm", blur: 2}}/>
+                    <AgendaTimeline bookings={agendaData}/>
+                </div>
+            </Modal>
+
         </Stack>
     );
 }
