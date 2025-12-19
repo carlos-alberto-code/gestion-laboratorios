@@ -9,10 +9,10 @@ interface StatsGroupProps {
 export function BookingStatsGroup({data}: StatsGroupProps) {
     return (
         <SimpleGrid cols={{base: 1, sm: 3}}>
-            <Paper withBorder p="md" radius="md">
+            <Paper withBorder p="md" radius="md" style={{transition: 'transform 150ms ease, box-shadow 150ms ease'}} className="stat-card">
                 <Group justify="space-between">
                     <Group align="center" gap="xs">
-                        <ThemeIcon color="blue" variant="light" size="lg" radius="md">
+                        <ThemeIcon color="brand" variant="light" size="lg" radius="md">
                             <IconCalendar size="1.2rem" stroke={1.5}/>
                         </ThemeIcon>
                         <Text size="xs" c="dimmed" fw={700} tt="uppercase">
@@ -31,10 +31,10 @@ export function BookingStatsGroup({data}: StatsGroupProps) {
                 </Group>
             </Paper>
 
-            <Paper withBorder p="md" radius="md">
+            <Paper withBorder p="md" radius="md" style={{transition: 'transform 150ms ease, box-shadow 150ms ease'}} className="stat-card">
                 <Group justify="space-between">
                     <Group align="center" gap="xs">
-                        <ThemeIcon color="yellow" variant="light" size="lg" radius="md">
+                        <ThemeIcon color="grape" variant="light" size="lg" radius="md">
                             <IconDeviceDesktopAnalytics size="1.2rem" stroke={1.5}/>
                         </ThemeIcon>
                         <Text size="xs" c="dimmed" fw={700} tt="uppercase">
@@ -46,10 +46,10 @@ export function BookingStatsGroup({data}: StatsGroupProps) {
                 <Group align="flex-end" gap="xs" mt={25}>
                     <Text fw={700} size="xl" lh={1}>{data.ocupacionPorcentaje}%</Text>
                 </Group>
-                <Progress value={data.ocupacionPorcentaje} mt="md" size="sm" color="yellow"/>
+                <Progress value={data.ocupacionPorcentaje} mt="md" size="sm" color="grape"/>
             </Paper>
 
-            <Paper withBorder p="md" radius="md">
+            <Paper withBorder p="md" radius="md" style={{transition: 'transform 150ms ease, box-shadow 150ms ease'}} className="stat-card">
                 <Group justify="space-between">
                     <Group align="center" gap="xs">
                         <ThemeIcon color="orange" variant="light" size="lg" radius="md">

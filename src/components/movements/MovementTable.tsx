@@ -9,8 +9,8 @@ interface MovementTableProps {
 export function MovementTable({data}: MovementTableProps) {
     const getTypeColor = (tipo: string) => {
         const map: Record<string, string> = {
-            'Reasignación': 'blue',
-            'Préstamo': 'orange',
+            'Reasignación': 'brand',
+            'Préstamo': 'grape',
             'Mantenimiento': 'yellow',
             'Baja': 'red'
         };

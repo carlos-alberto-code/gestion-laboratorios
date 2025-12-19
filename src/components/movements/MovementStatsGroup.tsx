@@ -9,10 +9,10 @@ interface StatsProps {
 export function MovementStatsGroup({data}: StatsProps) {
     return (
         <SimpleGrid cols={{base: 1, sm: 3}}>
-            <Paper withBorder p="md" radius="md">
+            <Paper withBorder p="md" radius="md" style={{transition: 'transform 150ms ease, box-shadow 150ms ease'}} className="stat-card">
                 <Group justify="space-between">
                     <Group align="center" gap="xs">
-                        <ThemeIcon color="blue" variant="light" size="lg" radius="md">
+                        <ThemeIcon color="brand" variant="light" size="lg" radius="md">
                             <IconArrowsExchange size="1.2rem" stroke={1.5}/>
                         </ThemeIcon>
                         <Text size="xs" c="dimmed" fw={700} tt="uppercase">Total Movimientos</Text>
@@ -24,10 +24,10 @@ export function MovementStatsGroup({data}: StatsProps) {
                 </Group>
             </Paper>
 
-            <Paper withBorder p="md" radius="md">
+            <Paper withBorder p="md" radius="md" style={{transition: 'transform 150ms ease, box-shadow 150ms ease'}} className="stat-card">
                 <Group justify="space-between">
                     <Group align="center" gap="xs">
-                        <ThemeIcon color="orange" variant="light" size="lg" radius="md">
+                        <ThemeIcon color="grape" variant="light" size="lg" radius="md">
                             <IconClock size="1.2rem" stroke={1.5}/>
                         </ThemeIcon>
                         <Text size="xs" c="dimmed" fw={700} tt="uppercase">En Préstamo</Text>
@@ -35,11 +35,11 @@ export function MovementStatsGroup({data}: StatsProps) {
                 </Group>
                 <Group align="flex-end" gap="xs" mt={25}>
                     <Text fw={700} size="xl" lh={1}>{data.enPrestamo}</Text>
-                    <Text c="orange" size="sm" fw={500}>activos fuera</Text>
+                    <Text c="grape" size="sm" fw={500}>activos fuera</Text>
                 </Group>
             </Paper>
 
-            <Paper withBorder p="md" radius="md">
+            <Paper withBorder p="md" radius="md" style={{transition: 'transform 150ms ease, box-shadow 150ms ease'}} className="stat-card">
                 <Group justify="space-between">
                     <Group align="center" gap="xs">
                         <ThemeIcon color="red" variant="light" size="lg" radius="md">

@@ -119,19 +119,19 @@ export function DashboardView() {
                     title="Total Activos"
                     value={kpis?.totalActivos || 0}
                     icon={IconCpu}
-                    color="blue"
+                    color="brand"
                 />
                 <StatCard
                     title="En Mantenimiento"
                     value={kpis?.activosEnMantenimiento || 0}
                     icon={IconAlertTriangle}
-                    color="orange"
+                    color="yellow"
                 />
                 <StatCard
                     title="Valor Inventario"
                     value={formatCurrency(kpis?.valorTotalInventario || 0)}
                     icon={IconCoin}
-                    color="violet"
+                    color="grape"
                 />
                 <StatCard
                     title="Reservas Activas"
@@ -183,7 +183,7 @@ export function DashboardView() {
                     <Paper withBorder p="md" radius="md" h="100%">
                         <Group justify="space-between" mb="md">
                             <Title order={4}>Actividad Reciente</Title>
-                            <Button variant="subtle" size="xs" rightSection={<IconArrowRight size={14}/>}>
+                            <Button variant="subtle" color="brand" size="xs" rightSection={<IconArrowRight size={14}/>}>
                                 Ver agenda
                             </Button>
                         </Group>

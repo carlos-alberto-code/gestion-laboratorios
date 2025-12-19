@@ -134,7 +134,7 @@ export function ItemForm(
                 {/* Sección: Información General */}
                 <div>
                     <Group gap="xs" mb="sm">
-                        <IconDeviceDesktop size={20} style={{color: 'var(--mantine-color-blue-6)'}}/>
+                        <IconDeviceDesktop size={20} style={{color: 'var(--mantine-color-brand-6)'}}/>
                         <Title order={4}>Información General</Title>
                     </Group>
                     <Grid>
@@ -175,7 +175,7 @@ export function ItemForm(
                 {/* Sección: Ubicación */}
                 <div>
                     <Group gap="xs" mb="sm">
-                        <IconMapPin size={20} style={{color: 'var(--mantine-color-green-6)'}}/>
+                        <IconMapPin size={20} style={{color: 'var(--mantine-color-teal-6)'}}/>
                         <Title order={4}>Ubicación</Title>
                     </Group>
                     <Grid>
@@ -227,7 +227,7 @@ export function ItemForm(
                 {/* Sección: Información Adicional */}
                 <div>
                     <Group gap="xs" mb="sm">
-                        <IconInfoCircle size={20} style={{color: 'var(--mantine-color-violet-6)'}}/>
+                        <IconInfoCircle size={20} style={{color: 'var(--mantine-color-grape-6)'}}/>
                         <Title order={4}>Información Adicional</Title>
                     </Group>
                     <Text size="xs" c="dimmed" mb="md">

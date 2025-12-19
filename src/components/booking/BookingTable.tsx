@@ -12,9 +12,9 @@ export function BookingTable({data, onEdit, onDelete}: BookingTableProps) {
     const getStatusColor = (estado: string) => {
         switch (estado) {
             case 'Confirmada':
-                return 'green';
+                return 'teal';
             case 'En Curso':
-                return 'blue';
+                return 'brand';
             case 'Pendiente':
                 return 'orange';
             case 'Finalizada':
@@ -37,14 +37,14 @@ export function BookingTable({data, onEdit, onDelete}: BookingTableProps) {
                         width: 8,
                         height: 8,
                         borderRadius: '50%',
-                        backgroundColor: 'var(--mantine-color-blue-5)'
+                        backgroundColor: 'var(--mantine-color-brand-5)'
                     }}></div>
                     <Text size="sm">{item.laboratorioNombre}</Text>
                 </Group>
             </Table.Td>
             <Table.Td>
                 <Group gap="sm">
-                    <Avatar size={26} src={item.avatarUrl} radius={26} color="blue" name={item.solicitante}/>
+                    <Avatar size={26} src={item.avatarUrl} radius={26} color="brand" name={item.solicitante}/>
                     <Text size="sm" fw={500}>{item.solicitante}</Text>
                 </Group>
             </Table.Td>

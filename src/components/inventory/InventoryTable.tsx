@@ -13,10 +13,10 @@ export function InventoryTable({data, scrollable = true, onEdit, onDelete}: Inve
 
     const getStatusColor = (estado: string) => {
         const colors: Record<string, string> = {
-            'Operativo': 'green',
+            'Operativo': 'teal',
             'En Mantenimiento': 'yellow',
             'De Baja': 'red',
-            'En Préstamo': 'blue'
+            'En Préstamo': 'grape'
         };
         return colors[estado] || 'gray';
     };
@@ -28,7 +28,7 @@ export function InventoryTable({data, scrollable = true, onEdit, onDelete}: Inve
                 <Text size="xs" c="dimmed">{item.id}</Text>
             </Table.Td>
             <Table.Td>
-                <Badge size="sm" variant="light">
+                <Badge size="sm" variant="light" color="brand">
                     {item.categoria}
                 </Badge>
             </Table.Td>

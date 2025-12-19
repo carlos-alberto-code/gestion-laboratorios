@@ -1,11 +1,76 @@
 :root {
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+    /* Variables personalizadas para mayor consistencia */
+    --app-bg: #f8f9fa;
+    --app-text: #212529;
+    --sidebar-bg: #25262b;
+    --brand-primary: #d61a1d;
+    --brand-light: #ffe9e9;
 }
 
 body {
     /* Un gris muy suave, casi blanco, pero suficiente para crear contraste */
-    background-color: #f8f9fa;
-    color: #212529;
+    background-color: var(--app-bg);
+    color: var(--app-text);
     margin: 0;
     -webkit-font-smoothing: antialiased; /* Hace que la fuente se vea más nítida */
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar personalizado para mantener la estética */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f3f4;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Animación suave para elementos interactivos */
+* {
+    transition-property: background-color, border-color, box-shadow;
+    transition-duration: 150ms;
+    transition-timing-function: ease;
+}
+
+/* Evitar transiciones en elementos que no deben animarse */
+input, select, textarea, button {
+    transition-property: border-color, box-shadow;
+}
+
+/* Mejora visual para focus states */
+:focus-visible {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+}
+
+/* Clase auxiliar para opacidad reducida */
+.opacity-20 {
+    opacity: 0.2;
+}
+
+/* Headers de sección consistentes */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Tarjetas de estadísticas con hover sutil */
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
